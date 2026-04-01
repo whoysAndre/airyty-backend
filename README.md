@@ -157,7 +157,7 @@ npm install
 Create a `.env` file in `/backend`:
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/stayhub"
+DATABASE_URL="postgresql://user:password@localhost:5432/database_name"
 JWT_SECRET="your-secret-here"
 CLOUDINARY_CLOUD_NAME="your-cloud-name"
 CLOUDINARY_API_KEY="your-api-key"
@@ -191,6 +191,9 @@ npm run format        # Prettier
 ```
 
 ---
+
+> **Render free tier:** the service sleeps after 15 min of inactivity — first request takes ~30s to wake up. Mention this to anyone testing the live URL.
+
 
 ## Design Decisions
 
