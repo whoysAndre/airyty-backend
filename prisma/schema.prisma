@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── ENUMS ────────────────────────────────────────────────────
+
+enum Role {
+  GUEST
+  HOST
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+// ── MODELS ───────────────────────────────────────────────────
+
+model User {
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  passwordHash    String   @map("password_hash")
+  avatarUrl       String?  @map("avatar_url")
+  puublicImageUrl String?  @map("public_image_url")
+  role            Role     @default(GUEST)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Stripe
+  stripeCustomerId String? @unique @map("stripe_customer_id")
+
+  listings Listing[]
+  bookings Booking[]
+  reviews  Review[]
+
+  @@map("users")
+}
+
+model Listing {
+  id            String   @id @default(uuid())
+  hostId        String   @map("host_id")
+  title         String
+  description   String
+  city          String
+  country       String
+  maxGuests     Int      @map("max_guests")
+  pricePerNight Decimal  @map("price_per_night") @db.Decimal(10, 2)
+  images        Json[]   @map("images")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  host     User      @relation(fields: [hostId], references: [id])
+  bookings Booking[]
+
+  @@index([hostId])
+  @@map("listings")
+}
+
+model Booking {
+  id         String        @id @default(uuid())
+  guestId    String        @map("guest_id")
+  listingId  String        @map("listing_id")
+  checkIn    DateTime      @map("check_in") @db.Date
+  checkOut   DateTime      @map("check_out") @db.Date
+  guestCount Int           @map("guest_count")
+  totalPrice Decimal       @map("total_price") @db.Decimal(10, 2)
+  status     BookingStatus @default(PENDING)
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  guest   User     @relation(fields: [guestId], references: [id])
+  listing Listing  @relation(fields: [listingId], references: [id])
+  payment Payment?
+  review  Review?
+
+  @@index([guestId])
+  @@index([listingId])
+  @@map("bookings")
+}
+
+model Payment {
+  id                    String        @id @default(uuid())
+  bookingId             String        @unique @map("booking_id")
+  amount                Decimal       @db.Decimal(10, 2)
+  currency              String        @default("usd")
+  status                PaymentStatus @default(PENDING)
+  stripePaymentIntentId String?       @unique @map("stripe_payment_intent_id")
+  createdAt             DateTime      @default(now()) @map("created_at")
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  bookingId String   @unique @map("booking_id")
+  authorId  String   @map("author_id")
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  author  User    @relation(fields: [authorId], references: [id])
+
+  @@map("reviews")
+}
