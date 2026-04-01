@@ -1,4 +1,4 @@
-# StayHub API
+# AIRYTY API
 
 > REST API for a full-featured Airbnb-like platform — built with NestJS, PostgreSQL, and Cloudinary.
 
