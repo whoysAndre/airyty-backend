@@ -82,7 +82,7 @@ PENDING ──► CONFIRMED ──► COMPLETED
 
 ## API Reference
 
-Base URL: `http://localhost:3000/api`
+Base URL: `https://airyty-backend.onrender.com/api`
 Protected endpoints require: `Authorization: Bearer <token>`
 
 ### Auth
@@ -173,7 +173,7 @@ npx prisma generate       # generate Prisma client
 npm run start:dev         # start with hot reload
 ```
 
-The API is available at `http://localhost:3000/api`.
+The API is available at `https://airyty-backend.onrender.com/api`.
 
 ---
 
